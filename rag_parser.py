@@ -6,15 +6,22 @@ documents = []
 infile = 'test_docs/test_file.docx'
 parsed_document = DocumentParser(infile)
 
+"""
+# Single document
 document_builder_string = ''
 for _type, item in parsed_document.parse():
     #print(_type, item["text"])
     if item["style_id"] == 'Normal':
-      
       document_builder_string += (item["text"] + ' ')
 print(document_builder_string)
 documents.append(document_builder_string)
-print(documents)
+"""
+
+# Multiple documents
+for _type, item in parsed_document.parse():
+    #print(_type, item["text"])
+    if item["style_id"] == 'Normal':
+      documents.append(item["text"])
 
 client = chromadb.Client()
 collection = client.create_collection(name="docs")
@@ -30,7 +37,7 @@ for i, d in enumerate(documents):
   )
 
 # an example input
-question = "Describe the MVP."
+question = "Describe the MVP in 100 words."
 
 # generate an embedding for the input and retrieve the most relevant doc
 response = ollama.embed(
