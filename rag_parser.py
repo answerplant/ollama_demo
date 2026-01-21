@@ -1,14 +1,20 @@
 import ollama
 import chromadb
+from docx_parser import DocumentParser
 
-documents = [
-  "Llamas are members of the camelid family meaning they're pretty closely related to vicuñas and camels",
-  "Llamas were first domesticated and used as pack animals 4,000 to 5,000 years ago in the Peruvian highlands",
-  "Llamas can grow as much as 6 feet tall though the average llama between 5 feet 6 inches and 5 feet 9 inches tall",
-  "Llamas weigh between 280 and 450 pounds and can carry 25 to 30 percent of their body weight",
-  "Llamas are vegetarians and have very efficient digestive systems",
-  "Llamas live to be about 20 years old, though some only live for 15 years and others live to be 30 years old",
-]
+documents = []
+infile = 'test_docs/test_file.docx'
+parsed_document = DocumentParser(infile)
+
+document_builder_string = ''
+for _type, item in parsed_document.parse():
+    #print(_type, item["text"])
+    if item["style_id"] == 'Normal':
+      
+      document_builder_string += (item["text"] + ' ')
+print(document_builder_string)
+documents.append(document_builder_string)
+print(documents)
 
 client = chromadb.Client()
 collection = client.create_collection(name="docs")
@@ -24,12 +30,12 @@ for i, d in enumerate(documents):
   )
 
 # an example input
-#input = "What animals are llamas related to?"
+question = "Describe the MVP."
 
 # generate an embedding for the input and retrieve the most relevant doc
 response = ollama.embed(
   model="nomic-embed-text",
-  input="What animals are llamas related to?"
+  input=question
 )
 
 results = collection.query(
